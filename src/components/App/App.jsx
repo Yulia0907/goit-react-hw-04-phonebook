@@ -1,4 +1,4 @@
-import { useState, useEffect  } from 'react';
+import { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 
 import { Container, TitleStyle } from './App.styled';
@@ -53,10 +53,7 @@ export const App = () => {
       <ContactForm onSubmitData={formSubmitHandler} />
       <TitleStyle> Contacts</TitleStyle>
       <Filter filter={filter} handleChange={changeFilter} />
-      <ContactList
-        contacts={visibleContacts}
-        handleDelete={deleteContact}
-      />
+      <ContactList contacts={visibleContacts} handleDelete={deleteContact} />
     </Container>
   );
 };
