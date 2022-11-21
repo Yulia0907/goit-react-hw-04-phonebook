@@ -8,75 +8,54 @@ import { Filter } from '../Filter/Filter';
 import { ContactList } from '../ContactList/ContactList';
 
 export const App = () => {
-  const [contacts, setContacts] = useState([
-    { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-    { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-    { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-    { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-  ]);
-
-  const [firstRenderFlag, setFlag] = useState(true);
-
+  const [contacts, setContacts] = useState(() => {
+    return JSON.parse(window.localStorage.getItem('contacts')) ?? [];
+  });
   const [filter, setFilter] = useState('');
-  useEffect(() => {}, []);
 
   useEffect(() => {
-    if (firstRenderFlag) {
-      const contactsFromLocalStorage = localStorage.getItem('contactList');
+    window.localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
 
-      if (contactsFromLocalStorage !== 'undefined') {
-        const parsedContacts = JSON.parse(contactsFromLocalStorage);
+  const formSubmitHandler = data => {
+    const contact = {
+      id: nanoid(),
+      name: data.name,
+      number: data.number,
+    };
 
-        if (parsedContacts) {
-          setContacts(parsedContacts);
-        }
-      }
-      setFlag(false);
-    } else {
-      localStorage.setItem('contactList', JSON.stringify(contacts));
+    if (
+      contacts.find(
+        contact => contact.name.toLowerCase() === data.name.toLowerCase()
+      )
+    ) {
+      return alert(`${data.name} is already in contacts.`);
     }
-  }, [contacts, firstRenderFlag]);
-
-  const handleChange = e => {
-    const { value } = e.target;
-    setFilter(value);
+    setContacts(prevState => [contact, ...prevState]);
   };
 
-  const handleSubmit = e => {
-    const id = nanoid();
-    const name = e.name;
-    const number = e.number;
-    const contactsLists = [...contacts];
-
-    if (contactsLists.findIndex(contact => name === contact.name) !== -1) {
-      alert(`${name} is already in contacts.`);
-    } else {
-      contactsLists.push({ id, name, number });
-    }
-
-    setContacts(contactsLists);
+  const changeFilter = e => {
+    setFilter(e.currentTarget.value);
   };
 
-  const handleDelete = e => {
-    setContacts(contacts.filter(contact => contact.id !== e));
+  const deleteContact = contactId => {
+    setContacts(contacts.filter(contact => contact.id !== contactId));
   };
 
-  const getFilteredContacts = () => {
-    const filterContactsList = contacts.filter(contact => {
-      return contact.name.toLowerCase().includes(filter.toLowerCase());
-    });
-    return filterContactsList;
-  };
+  const normalizedFilter = filter.toLowerCase();
+  const visibleContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(normalizedFilter)
+  );
 
   return (
     <Container>
       <TitleStyle>Phonebook</TitleStyle>
-      <ContactForm handleSubmit={handleSubmit} />
+      <ContactForm onSubmitData={formSubmitHandler} />
       <TitleStyle> Contacts</TitleStyle>
-      <Filter filter={filter} handleChange={handleChange} />
+      <Filter filter={filter} handleChange={changeFilter} />
       <ContactList
-        contacts={getFilteredContacts()}
-        handleDelete={handleDelete}
+        contacts={visibleContacts}
+        handleDelete={deleteContact}
       />
     </Container>
   );

@@ -2,28 +2,41 @@ import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { FormStyles, LabelStyles, InputStyles, ButtonStyles } from './ContactForm.styled';
 
-export const ContactForm = ({ handleSubmit }) => {
+export const ContactForm = ({ onSubmitData }) => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
-  const handleInputName = e => {
-    setName(e.currentTarget.value);
+  const handleChange = e => {
+    const { name, value } = e.target;
+
+    switch (name) {
+      case 'name':
+        setName(value);
+        break;
+
+      case 'number':
+        setNumber(value);
+        break;
+
+      default:
+        return;
+    }
   };
 
-  const handleInputNumber = e => {
-    setNumber(e.currentTarget.value);
-  };
-
-  const handleFormSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault();
-  
-    const form = e.currentTarget;
-    handleSubmit({ name: name, number: number });
-    form.reset();
+    const data = { name, number };
+    onSubmitData(data);
+    reset();
+  };
+
+  const reset = () => {
+    setName('');
+    setNumber('');
   };
 
   return (
-    <FormStyles onSubmit={handleFormSubmit}>
+    <FormStyles onSubmit={handleSubmit}>
       <LabelStyles>Name 
       <InputStyles
         type="text"
@@ -33,7 +46,7 @@ export const ContactForm = ({ handleSubmit }) => {
         required
         placeholder="Yulia Sukhonenko"
         value={name}
-        onChange={handleInputName}
+        onChange={handleChange}
       />
       </LabelStyles>
       <LabelStyles>Number 
@@ -45,7 +58,7 @@ export const ContactForm = ({ handleSubmit }) => {
         required
         placeholder="999-99-99"
         value={number}
-        onChange={handleInputNumber}
+        onChange={handleChange}
       />
       </LabelStyles>
       <ButtonStyles type="submit">
@@ -56,5 +69,5 @@ export const ContactForm = ({ handleSubmit }) => {
 };
 
 ContactForm.propTypes = {
-  handleSubmit: PropTypes.func.isRequired,
+  onSubmitData: PropTypes.func.isRequired,
 };
